@@ -9,6 +9,12 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.MauiUI", "MauiFeed
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.UI", "MauiFeed.UI\MauiFeed.UI.csproj", "{A3365B0F-A560-4F5A-9315-4873FA6E9F12}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeedMobile", "MauiFeedMobile\MauiFeedMobile.csproj", "{EF44873E-589A-4210-B222-22D05052C85C}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeedMobile.Droid", "MauiFeedMobile.Droid\MauiFeedMobile.Droid.csproj", "{CE9B3535-D5A2-4DC1-9B43-62313C5D79F6}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeedMobile.iOS", "MauiFeedMobile.iOS\MauiFeedMobile.iOS.csproj", "{B58329F8-3F35-4575-8501-63091A64477E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +36,17 @@ Global
 		{A3365B0F-A560-4F5A-9315-4873FA6E9F12}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A3365B0F-A560-4F5A-9315-4873FA6E9F12}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A3365B0F-A560-4F5A-9315-4873FA6E9F12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EF44873E-589A-4210-B222-22D05052C85C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EF44873E-589A-4210-B222-22D05052C85C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EF44873E-589A-4210-B222-22D05052C85C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EF44873E-589A-4210-B222-22D05052C85C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CE9B3535-D5A2-4DC1-9B43-62313C5D79F6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CE9B3535-D5A2-4DC1-9B43-62313C5D79F6}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CE9B3535-D5A2-4DC1-9B43-62313C5D79F6}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CE9B3535-D5A2-4DC1-9B43-62313C5D79F6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B58329F8-3F35-4575-8501-63091A64477E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B58329F8-3F35-4575-8501-63091A64477E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B58329F8-3F35-4575-8501-63091A64477E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B58329F8-3F35-4575-8501-63091A64477E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
