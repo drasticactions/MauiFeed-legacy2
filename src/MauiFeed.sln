@@ -5,10 +5,6 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.Core", "MauiFeed.Core\MauiFeed.Core.csproj", "{E8E0A424-9547-499A-AE95-4A43D10CA118}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.MauiUI", "MauiFeed.MauiUI\MauiFeed.MauiUI.csproj", "{145832F2-5678-48DD-B4B7-92CDE2DC735D}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.UI", "MauiFeed.UI\MauiFeed.UI.csproj", "{A3365B0F-A560-4F5A-9315-4873FA6E9F12}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,13 +18,5 @@ Global
 		{E8E0A424-9547-499A-AE95-4A43D10CA118}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E8E0A424-9547-499A-AE95-4A43D10CA118}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E8E0A424-9547-499A-AE95-4A43D10CA118}.Release|Any CPU.Build.0 = Release|Any CPU
-		{145832F2-5678-48DD-B4B7-92CDE2DC735D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{145832F2-5678-48DD-B4B7-92CDE2DC735D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{145832F2-5678-48DD-B4B7-92CDE2DC735D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{145832F2-5678-48DD-B4B7-92CDE2DC735D}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A3365B0F-A560-4F5A-9315-4873FA6E9F12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3365B0F-A560-4F5A-9315-4873FA6E9F12}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3365B0F-A560-4F5A-9315-4873FA6E9F12}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3365B0F-A560-4F5A-9315-4873FA6E9F12}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
