@@ -2,13 +2,18 @@
 // Copyright (c) Drastic Actions. All rights reserved.
 // </copyright>
 
-namespace MauiFeed.Models
+namespace MauiFeed.UI.Models
 {
     /// <summary>
     /// Sidebar Item Types.
     /// </summary>
     public enum SidebarItemType
     {
+        /// <summary>
+        /// Other.
+        /// </summary>
+        Other,
+
         /// <summary>
         /// Smart Filters.
         /// </summary>

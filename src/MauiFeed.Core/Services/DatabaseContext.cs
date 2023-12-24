@@ -53,6 +53,55 @@ namespace MauiFeed.Services
         /// </summary>
         public DbSet<AppSettings>? AppSettings { get; set; }
 
+        public int AddOrUpdateFeedFolder(FeedFolder folder)
+        {
+            if (folder.Id == 0)
+            {
+                this.FeedFolder!.Add(folder);
+            }
+            else
+            {
+                this.FeedFolder!.Update(folder);
+            }
+
+            var result = this.SaveChanges();
+            return result;
+        }
+
+        public int AddOrUpdateFeedListItem(FeedListItem item)
+        {
+            if (item.Id == 0)
+            {
+                this.FeedListItems!.Add(item);
+            }
+            else
+            {
+                this.FeedListItems!.Update(item);
+            }
+
+            var result = this.SaveChanges();
+            return result;
+        }
+
+        public int RemoveFeedListItem(FeedListItem item)
+        {
+            this.FeedListItems!.Remove(item);
+            var result = this.SaveChanges();
+            return result;
+        }
+
+        public int RemoveFeedFolder(FeedFolder folder)
+        {
+            foreach (var item in folder.Items ?? new List<FeedListItem>())
+            {
+                item.FolderId = null;
+            }
+
+            this.FeedFolder!.Remove(folder);
+            var result = this.SaveChanges();
+            return result;
+        }
+
         /// <summary>
         /// Run when configuring the database.
         /// </summary>
