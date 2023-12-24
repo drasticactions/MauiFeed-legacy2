@@ -11,7 +11,7 @@ public sealed class MainUIViewController : UISplitViewController
 {
     private readonly IServiceProvider provider;
     private readonly SidebarViewController sidebarViewController;
-    private readonly UIViewController debugViewController;
+    private readonly TimelineTableViewController timelineTableViewController;
     private readonly UIViewController debug2ViewController;
     private List<SidebarItem> menuButtons;
 
@@ -25,20 +25,25 @@ public sealed class MainUIViewController : UISplitViewController
         this.provider = provider;
 
         this.menuButtons = this.GenerateMenuButtons();
-
+        this.timelineTableViewController = new TimelineTableViewController(this, provider);
         this.sidebarViewController = new SidebarViewController(provider, this.OnSidebarItemSelected);
-        this.debugViewController = new BasicViewController();
         this.debug2ViewController = new BasicViewController();
         this.SetViewController(this.sidebarViewController, UISplitViewControllerColumn.Primary);
-        this.SetViewController(this.debugViewController, UISplitViewControllerColumn.Secondary);
-        this.SetViewController(this.debug2ViewController, UISplitViewControllerColumn.Supplementary);
+        this.SetViewController(this.debug2ViewController, UISplitViewControllerColumn.Secondary);
+        this.SetViewController(this.timelineTableViewController, UISplitViewControllerColumn.Supplementary);
         this.PreferredDisplayMode = UISplitViewControllerDisplayMode.TwoBesideSecondary;
         this.PreferredPrimaryColumnWidth = 245f;
 #if !TVOS
         this.PrimaryBackgroundStyle = UISplitViewControllerBackgroundStyle.Sidebar;
 #endif
     }
-    
+
+    public override void ViewDidAppear(bool animated)
+    {
+        base.ViewDidAppear(animated);
+        this.ShowColumn(UISplitViewControllerColumn.Primary);
+    }
+
     public SidebarViewController SidebarViewController => this.sidebarViewController;
 
     private List<SidebarItem> GenerateMenuButtons()
@@ -55,6 +60,8 @@ public sealed class MainUIViewController : UISplitViewController
 
     private void OnSidebarItemSelected(SidebarItem? item)
     {
+        this.timelineTableViewController.SidebarItem = item;
+        this.ShowColumn(UISplitViewControllerColumn.Supplementary);
     }
 
     private async void OnRefreshSelected()

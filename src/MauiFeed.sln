@@ -9,6 +9,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.Catalyst", "MauiFe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.UI", "MauiFeed.UI\MauiFeed.UI.csproj", "{66ECEC1C-27BF-40C4-BF0A-B4AE7156E743}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.iOS", "MauiFeed.iOS\MauiFeed.iOS.csproj", "{D37717E4-623D-4E47-A9CD-20F813EF0520}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +32,9 @@ Global
 		{66ECEC1C-27BF-40C4-BF0A-B4AE7156E743}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66ECEC1C-27BF-40C4-BF0A-B4AE7156E743}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66ECEC1C-27BF-40C4-BF0A-B4AE7156E743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D37717E4-623D-4E47-A9CD-20F813EF0520}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D37717E4-623D-4E47-A9CD-20F813EF0520}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D37717E4-623D-4E47-A9CD-20F813EF0520}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D37717E4-623D-4E47-A9CD-20F813EF0520}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

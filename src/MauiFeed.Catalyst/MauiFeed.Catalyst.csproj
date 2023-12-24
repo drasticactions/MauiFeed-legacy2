@@ -11,7 +11,7 @@
         <ImplicitUsings>true</ImplicitUsings>
         <SupportedOSPlatformVersion>14.2</SupportedOSPlatformVersion>
         <AssemblyName>MauiFeed</AssemblyName>
-        <UseMaui>true</UseMaui>
+        <UseInterpreter>True</UseInterpreter>
         <HybridGlobalization>true</HybridGlobalization>
     </PropertyGroup>
     <ItemGroup>
@@ -20,9 +20,8 @@
     </ItemGroup>
     <ItemGroup>
         <PackageReference Include="Drastic.ForbiddenControls" Version="1.5.2"/>
+        <PackageReference Include="Drastic.PureLayout" Version="1.0.4" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
-        <PackageReference Include="Microsoft.Maui.Controls" Version="$(MauiVersion)"/>
-        <PackageReference Include="Microsoft.Maui.Controls.Compatibility" Version="$(MauiVersion)"/>
     </ItemGroup>
 
     <!-- Notes about the values set below:

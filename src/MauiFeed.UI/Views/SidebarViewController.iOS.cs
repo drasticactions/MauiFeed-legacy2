@@ -22,6 +22,7 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
     private readonly DatabaseContext context;
     private UICollectionView collectionView;
     private UICollectionViewDiffableDataSource<NSString, SidebarItem>? dataSource;
+    private OptionsMenu optionsMenu;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="SidebarViewController"/> class.
@@ -30,6 +31,7 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
     /// <param name="onSidebarItemSelected">Fired when sidebar item is selected.</param>
     public SidebarViewController(IServiceProvider provider, Action<SidebarItem?> onSidebarItemSelected)
     {
+        this.optionsMenu = new OptionsMenu(this, provider);
         this.onSidebarItemSelected = onSidebarItemSelected;
         this.cache = provider.GetRequiredService<RssFeedCacheService>();
         this.context = provider.GetRequiredService<DatabaseContext>();
@@ -60,6 +62,10 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
         this.ConfigureDataSource();
         this.GenerateSmartFilters();
         this.GenerateItems();
+
+#if IOS
+        this.NavigationItem.SetRightBarButtonItem(new UIBarButtonItem(UIBarButtonSystemItem.Add, this.optionsMenu.AddMenu), false);
+#endif
     }
 
     private void OnRefreshFeeds(object? sender, EventArgs e)
@@ -86,6 +92,18 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
     {
         this.GenerateItems(true);
     }
+    
+    /// <summary>
+    /// Fired when Item is Selected.
+    /// </summary>
+    /// <param name="collectionView">CollectionView.</param>
+    /// <param name="indexPath">Index Path.</param>
+    [Export("collectionView:didSelectItemAtIndexPath:")]
+    protected void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
+    {
+        var item = this.dataSource?.GetItemIdentifier(indexPath);
+        this.onSidebarItemSelected(item);
+    }
 
     private void GenerateSmartFilters(bool animated = false)
     {
@@ -95,13 +113,19 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
         snapshot.ExpandItems(new[] { filters });
         var filterList = new List<SidebarItem>
         {
-            new SidebarItem(Common.AllLabel, UIImage.GetSystemImage("list.bullet.rectangle")!, this.context.FeedItems!.Include(n => n.Feed), this.OnFeedSelected,
+            new SidebarItem(Common.AllLabel, UIImage.GetSystemImage("list.bullet.rectangle")!,
+                this.context.FeedItems!.Include(n => n.Feed), this.OnFeedSelected,
                 SidebarItemType.SmartFilter),
-            new SidebarItem(Common.TodayLabel, UIImage.GetSystemImage("sun.max")!, this.context.FeedItems!.Include(n => n.Feed).Where(n => n.PublishingDate != null && n.PublishingDate!.Value.Date == DateTime.UtcNow.Date), this.OnFeedSelected,
+            new SidebarItem(Common.TodayLabel, UIImage.GetSystemImage("sun.max")!,
+                this.context.FeedItems!.Include(n => n.Feed).Where(n =>
+                    n.PublishingDate != null && n.PublishingDate!.Value.Date == DateTime.UtcNow.Date),
+                this.OnFeedSelected,
                 SidebarItemType.SmartFilter),
-            new SidebarItem(Common.AllUnreadLabel, UIImage.GetSystemImage("eye")!, this.context.FeedItems!.Include(n => n.Feed).Where(n => !n.IsRead), this.OnFeedSelected,
+            new SidebarItem(Common.AllUnreadLabel, UIImage.GetSystemImage("eye")!,
+                this.context.FeedItems!.Include(n => n.Feed).Where(n => !n.IsRead), this.OnFeedSelected,
                 SidebarItemType.SmartFilter),
-            new SidebarItem(Common.StarredLabel, UIImage.GetSystemImage("star.square.fill")!, this.context.FeedItems!.Include(n => n.Feed).Where(n => n.IsFavorite), this.OnFeedSelected,
+            new SidebarItem(Common.StarredLabel, UIImage.GetSystemImage("star.square.fill")!,
+                this.context.FeedItems!.Include(n => n.Feed).Where(n => n.IsFavorite), this.OnFeedSelected,
                 SidebarItemType.SmartFilter),
         };
         snapshot.AppendItems(filterList.ToArray(), filters);
@@ -190,7 +214,8 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
                 contentConfiguration.TextProperties.Font = UIFont.PreferredSubheadline;
                 contentConfiguration.TextProperties.Color = UIColor.SecondaryLabel;
                 cell.ContentConfiguration = contentConfiguration;
-                cell.AddInteraction(new MenuInteraction(sidebarItem, this.RemoveSidebarItem, this.RemoveSidebarItemFromFolder));
+                cell.AddInteraction(new MenuInteraction(sidebarItem, this.RemoveSidebarItem,
+                    this.RemoveSidebarItemFromFolder));
             }));
 
         var rowRegistration = UICollectionViewCellRegistration.GetRegistration(
@@ -230,7 +255,8 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
                 }
 
                 cell.ContentConfiguration = cfg;
-                cell.AddInteraction(new MenuInteraction(sidebarItem, this.RemoveSidebarItem, this.RemoveSidebarItemFromFolder));
+                cell.AddInteraction(new MenuInteraction(sidebarItem, this.RemoveSidebarItem,
+                    this.RemoveSidebarItemFromFolder));
                 ((UICollectionViewListCell)cell).Accessories = new UICellAccessory[] { sidebarItem.UnreadCountView };
             }));
 
@@ -302,7 +328,10 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
     /// <summary>
     /// Menu Interaction.
     /// </summary>
-    public class MenuInteraction(SidebarItem item, Action<SidebarItem> onRemoved, Action<SidebarItem> onRemovedFromFolder)
+    public class MenuInteraction(
+        SidebarItem item,
+        Action<SidebarItem> onRemoved,
+        Action<SidebarItem> onRemovedFromFolder)
         : UIContextMenuInteraction(CreateDelegate(out _))
     {
         private static IUIContextMenuInteractionDelegate CreateDelegate(out IUIContextMenuInteractionDelegate del) =>
