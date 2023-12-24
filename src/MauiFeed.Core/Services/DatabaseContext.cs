@@ -4,6 +4,7 @@
 
 using MauiFeed.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace MauiFeed.Services
 {
@@ -27,6 +28,16 @@ namespace MauiFeed.Services
 
             this.Database.EnsureCreated();
         }
+
+        public event EventHandler<FeedListItemContentEventArgs>? OnFeedListItemUpdate;
+
+        public event EventHandler<FeedListItemContentEventArgs>? OnFeedListItemRemove;
+
+        public event EventHandler<FeedFolderContentEventArgs>? OnFeedFolderUpdate;
+
+        public event EventHandler<FeedFolderContentEventArgs>? OnFeedFolderRemove;
+
+        public event EventHandler? OnRefreshFeeds;
 
         /// <summary>
         /// Gets the database Path.
@@ -53,44 +64,47 @@ namespace MauiFeed.Services
         /// </summary>
         public DbSet<AppSettings>? AppSettings { get; set; }
 
-        public int AddOrUpdateFeedFolder(FeedFolder folder)
+        public async Task<int> AddOrUpdateFeedFolderAsync(FeedFolder folder)
         {
             if (folder.Id == 0)
             {
-                this.FeedFolder!.Add(folder);
+                await this.FeedFolder!.AddAsync(folder);
             }
             else
             {
                 this.FeedFolder!.Update(folder);
             }
 
-            var result = this.SaveChanges();
+            var result = await this.SaveChangesAsync();
+            this.OnFeedFolderUpdate?.Invoke(this, new FeedFolderContentEventArgs(folder));
             return result;
         }
 
-        public int AddOrUpdateFeedListItem(FeedListItem item)
+        public async Task<int> AddOrUpdateFeedListItem(FeedListItem item)
         {
             if (item.Id == 0)
             {
-                this.FeedListItems!.Add(item);
+                await this.FeedListItems!.AddAsync(item);
             }
             else
             {
                 this.FeedListItems!.Update(item);
             }
 
-            var result = this.SaveChanges();
+            var result = await this.SaveChangesAsync();
+            this.OnFeedListItemUpdate?.Invoke(this, new FeedListItemContentEventArgs(item));
             return result;
         }
 
-        public int RemoveFeedListItem(FeedListItem item)
+        public async Task<int> RemoveFeedListItemAsync(FeedListItem item)
         {
             this.FeedListItems!.Remove(item);
-            var result = this.SaveChanges();
+            var result = await this.SaveChangesAsync();
+            this.OnFeedListItemRemove?.Invoke(this, new FeedListItemContentEventArgs(item));
             return result;
         }
 
-        public int RemoveFeedFolder(FeedFolder folder)
+        public async Task<int> RemoveFeedFolderAsync(FeedFolder folder)
         {
             foreach (var item in folder.Items ?? new List<FeedListItem>())
             {
@@ -98,7 +112,58 @@ namespace MauiFeed.Services
             }
 
             this.FeedFolder!.Remove(folder);
-            var result = this.SaveChanges();
+            var result = await this.SaveChangesAsync();
+            this.OnFeedFolderRemove?.Invoke(this, new FeedFolderContentEventArgs(folder));
+            return result;
+        }
+
+        public async Task<int> RefreshFeedsAsync(
+            IEnumerable<FeedListItem> feedResults,
+            IEnumerable<FeedItem> feedItemResults)
+        {
+            this.FeedListItems!.UpdateRange(feedResults);
+            foreach (var feedItem in feedItemResults)
+            {
+                var val = await this.FeedItems!.AnyAsync(n =>
+                    n.RssId == feedItem.RssId && n.FeedListItemId == n.FeedListItemId);
+                if (!val)
+                {
+                    await this.FeedItems!.AddAsync(feedItem);
+                }
+            }
+
+            var result = await this.SaveChangesAsync();
+            this.OnRefreshFeeds?.Invoke(this, EventArgs.Empty);
+            return result;
+        }
+
+        public async Task<int> AddOrUpdateFeedListItemAsync(FeedListItem feed, IList<FeedItem> feedListItems)
+        {
+            if (feed?.Id <= 0)
+            {
+                await this.FeedListItems!.AddAsync(feed!);
+            }
+            else
+            {
+                this.FeedListItems!.Update(feed!);
+            }
+
+            foreach (var feedItem in feedListItems!)
+            {
+                // ... that we will then set for the individual items to link back to this one.
+                var oldItem = await this.FeedItems!.FirstOrDefaultAsync(n => n.RssId == feedItem.RssId);
+                if (oldItem is not null)
+                {
+                    continue;
+                }
+
+                feedItem.FeedListItemId = feed!.Id;
+                feedItem.Feed = feed;
+                await this.FeedItems!.AddAsync(feedItem);
+            }
+
+            var result = await this.SaveChangesAsync();
+            this.OnFeedListItemUpdate?.Invoke(this, new FeedListItemContentEventArgs(feed!));
             return result;
         }
 
@@ -131,4 +196,24 @@ namespace MauiFeed.Services
             modelBuilder.Entity<FeedItem>().HasIndex(n => n.RssId).IsUnique(false);
         }
     }
+}
+
+public class FeedListItemContentEventArgs : EventArgs
+{
+    public FeedListItemContentEventArgs(FeedListItem feed)
+    {
+        this.Feed = feed;
+    }
+
+    public FeedListItem Feed { get; }
+}
+
+public class FeedFolderContentEventArgs : EventArgs
+{
+    public FeedFolderContentEventArgs(FeedFolder feed)
+    {
+        this.Folder = feed;
+    }
+
+    public FeedFolder Folder { get; }
 }

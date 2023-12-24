@@ -20,7 +20,7 @@ public sealed class MainWindow : UIWindow
 
             var toolbar = new NSToolbar();
             var controller = (MainUIViewController)this.RootViewController;
-            toolbar.Delegate = new MainToolbarDelegate(controller.SidebarViewController, controller.Context.Services);
+            toolbar.Delegate = new MainToolbarDelegate(this.RootViewController, controller.Context.Services);
             toolbar.DisplayMode = NSToolbarDisplayMode.Icon;
 
             windowScene.Title = MauiFeed.Translations.Common.AppTitle;

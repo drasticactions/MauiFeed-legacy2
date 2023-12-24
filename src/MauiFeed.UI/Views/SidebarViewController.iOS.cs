@@ -33,6 +33,11 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
         this.onSidebarItemSelected = onSidebarItemSelected;
         this.cache = provider.GetRequiredService<RssFeedCacheService>();
         this.context = provider.GetRequiredService<DatabaseContext>();
+        this.context.OnFeedFolderRemove += this.OnFeedFolderRemove;
+        this.context.OnFeedFolderUpdate += this.OnFeedFolderUpdate;
+        this.context.OnFeedListItemRemove += this.OnFeedListItemRemove;
+        this.context.OnFeedListItemUpdate += this.OnFeedListItemUpdate;
+        this.context.OnRefreshFeeds += this.OnRefreshFeeds;
         this.collectionView = new UICollectionView(this.View!.Bounds, this.CreateLayout());
         this.collectionView.Delegate = this;
 #if !TVOS
@@ -42,7 +47,6 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
 #endif
 
         this.View.AddSubview(this.collectionView);
-
         this.collectionView.TranslatesAutoresizingMaskIntoConstraints = false;
 
         NSLayoutConstraint.ActivateConstraints(new[]
@@ -54,7 +58,33 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
         });
 
         this.ConfigureDataSource();
+        this.GenerateSmartFilters();
         this.GenerateItems();
+    }
+
+    private void OnRefreshFeeds(object? sender, EventArgs e)
+    {
+        this.GenerateItems(true);
+    }
+
+    private void OnFeedListItemUpdate(object? sender, FeedListItemContentEventArgs e)
+    {
+        this.GenerateItems(true);
+    }
+
+    private void OnFeedListItemRemove(object? sender, FeedListItemContentEventArgs e)
+    {
+        this.GenerateItems(true);
+    }
+
+    private void OnFeedFolderUpdate(object? sender, FeedFolderContentEventArgs e)
+    {
+        this.GenerateItems(true);
+    }
+
+    private void OnFeedFolderRemove(object? sender, FeedFolderContentEventArgs e)
+    {
+        this.GenerateItems(true);
     }
 
     private void GenerateSmartFilters(bool animated = false)
@@ -65,13 +95,13 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
         snapshot.ExpandItems(new[] { filters });
         var filterList = new List<SidebarItem>
         {
-            new SidebarItem(Common.AllLabel, UIImage.GetSystemImage("list.bullet.rectangle")!, this.OnFeedSelected,
+            new SidebarItem(Common.AllLabel, UIImage.GetSystemImage("list.bullet.rectangle")!, this.context.FeedItems!.Include(n => n.Feed), this.OnFeedSelected,
                 SidebarItemType.SmartFilter),
-            new SidebarItem(Common.TodayLabel, UIImage.GetSystemImage("sun.max")!, this.OnFeedSelected,
+            new SidebarItem(Common.TodayLabel, UIImage.GetSystemImage("sun.max")!, this.context.FeedItems!.Include(n => n.Feed).Where(n => n.PublishingDate != null && n.PublishingDate!.Value.Date == DateTime.UtcNow.Date), this.OnFeedSelected,
                 SidebarItemType.SmartFilter),
-            new SidebarItem(Common.AllUnreadLabel, UIImage.GetSystemImage("eye")!, this.OnFeedSelected,
+            new SidebarItem(Common.AllUnreadLabel, UIImage.GetSystemImage("eye")!, this.context.FeedItems!.Include(n => n.Feed).Where(n => !n.IsRead), this.OnFeedSelected,
                 SidebarItemType.SmartFilter),
-            new SidebarItem(Common.StarredLabel, UIImage.GetSystemImage("star.square.fill")!, this.OnFeedSelected,
+            new SidebarItem(Common.StarredLabel, UIImage.GetSystemImage("star.square.fill")!, this.context.FeedItems!.Include(n => n.Feed).Where(n => n.IsFavorite), this.OnFeedSelected,
                 SidebarItemType.SmartFilter),
         };
         snapshot.AppendItems(filterList.ToArray(), filters);
@@ -160,7 +190,7 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
                 contentConfiguration.TextProperties.Font = UIFont.PreferredSubheadline;
                 contentConfiguration.TextProperties.Color = UIColor.SecondaryLabel;
                 cell.ContentConfiguration = contentConfiguration;
-                cell.AddInteraction(new MenuInteraction(sidebarItem, this.RemoveSidebarItem));
+                cell.AddInteraction(new MenuInteraction(sidebarItem, this.RemoveSidebarItem, this.RemoveSidebarItemFromFolder));
             }));
 
         var rowRegistration = UICollectionViewCellRegistration.GetRegistration(
@@ -183,8 +213,7 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
                 {
                     case SidebarItemType.FeedListItem:
                     {
-                        cfg.Image = sidebarItem.Image?.AddBackgroundWithInsetAndResize(UIColor.White, 10,
-                            new CGSize(25, 25));
+                        cfg.Image = sidebarItem.Image;
                         if (cfg.Image is not null)
                         {
                             cfg.ImageProperties.CornerRadius = 3;
@@ -201,7 +230,7 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
                 }
 
                 cell.ContentConfiguration = cfg;
-                cell.AddInteraction(new MenuInteraction(sidebarItem, this.RemoveSidebarItem));
+                cell.AddInteraction(new MenuInteraction(sidebarItem, this.RemoveSidebarItem, this.RemoveSidebarItemFromFolder));
                 ((UICollectionViewListCell)cell).Accessories = new UICellAccessory[] { sidebarItem.UnreadCountView };
             }));
 
@@ -273,7 +302,7 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
     /// <summary>
     /// Menu Interaction.
     /// </summary>
-    public class MenuInteraction(SidebarItem item, Action<SidebarItem> onRemoved)
+    public class MenuInteraction(SidebarItem item, Action<SidebarItem> onRemoved, Action<SidebarItem> onRemovedFromFolder)
         : UIContextMenuInteraction(CreateDelegate(out _))
     {
         private static IUIContextMenuInteractionDelegate CreateDelegate(out IUIContextMenuInteractionDelegate del) =>
@@ -281,28 +310,42 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
 
         private UIContextMenuConfiguration? GetConfigurationForMenu()
         {
-            var remove = item.SidebarItemType switch
+            if (item.SidebarItemType == SidebarItemType.Folder)
             {
-                SidebarItemType.FeedListItem => UIAction.Create(
-                    Common.RemoveFeedLabel,
-                    UIImage.GetSystemImage("delete.left"),
-                    null,
-                    action => { onRemoved.Invoke(item); }),
-                SidebarItemType.Folder => UIAction.Create(
-                    Common.RemoveFolderLabel,
-                    UIImage.GetSystemImage("delete.left"),
-                    null,
-                    action => { onRemoved.Invoke(item); }),
-                _ => throw new Exception("Unsupported."),
-            };
-            var uiMenu = UIMenu.Create(new UIMenuElement[]
+                return UIContextMenuConfiguration.Create(
+                    identifier: null,
+                    previewProvider: null,
+                    actionProvider: _ => UIMenu.Create(new UIMenuElement[]
+                    {
+                        UIAction.Create(
+                            Common.RemoveFolderLabel,
+                            UIImage.GetSystemImage("delete.left"),
+                            null,
+                            action => { onRemoved.Invoke(item); }),
+                    }));
+            }
+
+            if (item.SidebarItemType == SidebarItemType.FeedListItem)
             {
-                remove!,
-            });
-            return UIContextMenuConfiguration.Create(
-                identifier: null,
-                previewProvider: null,
-                actionProvider: _ => uiMenu);
+                return UIContextMenuConfiguration.Create(
+                    identifier: null,
+                    previewProvider: null,
+                    actionProvider: _ => UIMenu.Create(new UIMenuElement[]
+                    {
+                        UIAction.Create(
+                            Common.RemoveFeedLabel,
+                            UIImage.GetSystemImage("delete.left"),
+                            null,
+                            action => { onRemoved.Invoke(item); }),
+                        UIAction.Create(
+                            Common.RemoveFromFolderLabel,
+                            UIImage.GetSystemImage("delete.left"),
+                            null,
+                            action => { onRemovedFromFolder.Invoke(item); }),
+                    }));
+            }
+
+            return null;
         }
 
         private sealed class FlyoutUIContextMenuInteractionDelegate : NSObject, IUIContextMenuInteractionDelegate
@@ -327,9 +370,11 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
 
     private void GenerateItems(bool animated = false)
     {
-        this.GenerateSmartFilters(animated);
-        this.GenerateUnorganizedItems(animated);
-        this.GenerateFeedFolders(animated);
+        this.InvokeOnMainThread(() =>
+        {
+            this.GenerateUnorganizedItems(animated);
+            this.GenerateFeedFolders(animated);
+        });
     }
 
 
@@ -345,18 +390,27 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
         this.UpdateDataSource();
     }
 
-    private void RemoveSidebarItem(SidebarItem item)
+    private async void RemoveSidebarItemFromFolder(SidebarItem item)
+    {
+        if (item.SidebarItemType != SidebarItemType.FeedListItem)
+        {
+            return;
+        }
+
+        item.FeedListItem!.FolderId = null;
+        await this.context.AddOrUpdateFeedListItem(item.FeedListItem);
+    }
+
+    private async void RemoveSidebarItem(SidebarItem item)
     {
         switch (item.SidebarItemType)
         {
             case SidebarItemType.FeedListItem:
-                this.context.RemoveFeedListItem(item.FeedListItem!);
+                await this.context.RemoveFeedListItemAsync(item.FeedListItem!);
                 break;
             case SidebarItemType.Folder:
-                this.context.RemoveFeedFolder(item.FeedFolder!);
+                await this.context.RemoveFeedFolderAsync(item.FeedFolder!);
                 break;
         }
-
-        this.GenerateItems(true);
     }
 }

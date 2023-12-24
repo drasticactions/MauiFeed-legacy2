@@ -277,4 +277,10 @@
   <data name="UpdateFolderLabel" xml:space="preserve">
     <value>Update Folder</value>
   </data>
+  <data name="OKText" xml:space="preserve">
+    <value>OK</value>
+  </data>
+  <data name="CancelText" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
 </root>

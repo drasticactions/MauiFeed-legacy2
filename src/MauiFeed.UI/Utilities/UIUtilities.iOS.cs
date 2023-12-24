@@ -17,6 +17,29 @@ public static class UIUtilities
         return UIColor.Tint;
 #endif
     }
+    
+    public static UIImage ScalePreservingAspectRatio(this UIImage sourceImage, CGSize targetSize)
+    {
+        // Determine the scale factor that preserves aspect ratio
+        var widthRatio = targetSize.Width / sourceImage.Size.Width;
+        var heightRatio = targetSize.Height / sourceImage.Size.Height;
+
+        var scaleFactor = Math.Min(widthRatio, heightRatio);
+
+        // Compute the new image size that preserves aspect ratio
+        var scaledImageSize = new CGSize(
+            width: sourceImage.Size.Width * scaleFactor,
+            height: sourceImage.Size.Height * scaleFactor
+        );
+
+        // Render the new image
+        UIGraphics.BeginImageContextWithOptions(scaledImageSize, false, 0);
+        sourceImage.Draw(new CGRect(CGPoint.Empty, scaledImageSize));
+        var scaledImage = UIGraphics.GetImageFromCurrentImageContext();
+        UIGraphics.EndImageContext();
+
+        return scaledImage;
+    }
 
     public static UIImage AddBackgroundColorWithInset(this UIImage originalImage, UIColor backgroundColor, float inset)
     {

@@ -30,7 +30,7 @@ public class AppDelegate : UIApplicationDelegate
             Directory.CreateDirectory(appDataPath);
         }
 
-        var databasePath = Path.Combine(appDataPath, "MauiFeed.db");
+        var databasePath = Path.Combine(appDataPath, "MauiFeedDB.db");
         var database = new DatabaseContext(databasePath);
 
         MauiAppBuilder builder = MauiApp.CreateBuilder();

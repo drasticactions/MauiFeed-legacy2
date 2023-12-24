@@ -277,4 +277,7 @@
   <data name="JapaneseLanguage" xml:space="preserve">
     <value>日本語</value>
   </data>
+  <data name="CancelText" xml:space="preserve">
+    <value>キャンセル</value>
+  </data>
 </root>

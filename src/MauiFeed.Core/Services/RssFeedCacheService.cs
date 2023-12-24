@@ -88,20 +88,9 @@ namespace MauiFeed.Services
                 progress?.Report(new RssCacheFeedUpdate(current, feeds.Count, feed));
             });
 
-            var feedResults = results.Select(n => n.Item1);
-            var feedItemResults = results.SelectMany(n => n.Item2);
-
-            this.databaseContext.FeedListItems!.UpdateRange(feedResults);
-            foreach (var feedItem in feedItemResults)
-            {
-                var val = await this.databaseContext.FeedItems!.AnyAsync(n => n.RssId == feedItem.RssId && n.FeedListItemId == n.FeedListItemId);
-                if (!val)
-                {
-                    await this.databaseContext.FeedItems!.AddAsync(feedItem);
-                }
-            }
-
-            await this.databaseContext.SaveChangesAsync();
+            IEnumerable<FeedListItem> feedResults = results.Select(n => n.Item1);
+            IEnumerable<FeedItem> feedItemResults = results.SelectMany(n => n.Item2);
+            var result = await this.databaseContext.RefreshFeedsAsync(feedResults, feedItemResults);
             progress?.Report(new RssCacheFeedUpdate());
         }
 
@@ -113,31 +102,7 @@ namespace MauiFeed.Services
         public async Task<FeedListItem> RefreshFeedAsync(FeedListItem item)
         {
             (var feed, var feedListItems) = await this.rssService.ReadFeedAsync(item);
-
-            if (feed?.Id <= 0)
-            {
-                await this.databaseContext.FeedListItems!.AddAsync(feed!);
-            }
-            else
-            {
-                this.databaseContext.FeedListItems!.Update(feed!);
-            }
-
-            foreach (var feedItem in feedListItems!)
-            {
-                // ... that we will then set for the individual items to link back to this one.
-                var oldItem = await this.databaseContext.FeedItems!.FirstOrDefaultAsync(n => n.RssId == feedItem.RssId);
-                if (oldItem is not null)
-                {
-                    continue;
-                }
-
-                feedItem.FeedListItemId = feed!.Id;
-                feedItem.Feed = feed;
-                await this.databaseContext.FeedItems!.AddAsync(feedItem);
-            }
-
-            await this.databaseContext.SaveChangesAsync();
+            var result = this.databaseContext.AddOrUpdateFeedListItemAsync(feed, feedListItems);
             return feed!;
         }
     }

@@ -5,7 +5,8 @@
         <!-- app.sandbox is required by the App Store. See https://developer.apple.com/documentation/security/app_sandbox-->
         <key>com.apple.security.app-sandbox</key>
         <true/>
-
+        <key>com.apple.security.files.user-selected.read-only</key>
+        <true/>
         <!-- When sandbox is enabled, this value is required if app was created with Blazor.-->
         <!--<key>com.apple.security.network.client</key>
         <true/>

@@ -362,5 +362,17 @@ namespace MauiFeed.Translations {
                 return ResourceManager.GetString("UpdateFolderLabel", resourceCulture);
             }
         }
+        
+        public static string OKText {
+            get {
+                return ResourceManager.GetString("OKText", resourceCulture);
+            }
+        }
+        
+        public static string CancelText {
+            get {
+                return ResourceManager.GetString("CancelText", resourceCulture);
+            }
+        }
     }
 }
