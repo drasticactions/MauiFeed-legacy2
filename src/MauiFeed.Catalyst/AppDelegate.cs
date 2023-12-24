@@ -4,12 +4,11 @@
 
 using Drastic.Services;
 using Foundation;
-using MauiFeed.MauiUI;
 using MauiFeed.Models;
 using MauiFeed.Services;
 using MauiFeed.UI.Services;
 using MauiFeed.UI.Views;
-using Microsoft.Maui.Embedding;
+using Microsoft.Extensions.DependencyInjection;
 using UIKit;
 
 namespace MauiFeed.Catalyst;
@@ -17,8 +16,7 @@ namespace MauiFeed.Catalyst;
 [Register("AppDelegate")]
 public class AppDelegate : UIApplicationDelegate
 {
-    private MauiContext mauiContext;
-
+    public IServiceProvider? provider;
     public override UIWindow? Window { get; set; }
 
     public override bool FinishedLaunching(UIApplication application, NSDictionary launchOptions)
@@ -33,10 +31,8 @@ public class AppDelegate : UIApplicationDelegate
         var databasePath = Path.Combine(appDataPath, "MauiFeedDB.db");
         var database = new DatabaseContext(databasePath);
 
-        MauiAppBuilder builder = MauiApp.CreateBuilder();
-        builder.UseMauiEmbedding<Microsoft.Maui.Controls.Application>();
-
-        builder.Services
+        var services = new ServiceCollection();
+        services
             .AddSingleton<IErrorHandlerService, DefaultErrorHandlerService>()
             .AddSingleton<IAppDispatcher, DefaultAppDispatcher>()
             .AddSingleton(database)
@@ -44,12 +40,10 @@ public class AppDelegate : UIApplicationDelegate
             .AddSingleton<FeedService>()
             .AddSingleton<RssFeedCacheService>()
             .AddSingleton(new Progress<RssCacheFeedUpdate>())
-            .AddTransient<IDebugPage, DebugPage>()
             .AddSingleton<OpmlFeedListItemFactory>();
-        MauiApp mauiApp = builder.Build();
-        this.mauiContext = new MauiContext(mauiApp.Services);
+        this.provider = services.BuildServiceProvider();
 
-        this.Window = new MainWindow(this.mauiContext, UIScreen.MainScreen.Bounds);
+        this.Window = new MainWindow(this.provider, UIScreen.MainScreen.Bounds);
 
         this.Window.MakeKeyAndVisible();
 

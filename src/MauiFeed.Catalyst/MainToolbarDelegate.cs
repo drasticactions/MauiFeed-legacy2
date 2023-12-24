@@ -7,6 +7,7 @@ using MauiFeed.Models.OPML;
 using MauiFeed.Services;
 using MauiFeed.Translations;
 using MauiFeed.UI.Views;
+using Microsoft.Extensions.DependencyInjection;
 using MobileCoreServices;
 using UIKit;
 

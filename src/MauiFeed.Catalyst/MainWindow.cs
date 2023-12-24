@@ -7,10 +7,10 @@ namespace MauiFeed.Catalyst;
 
 public sealed class MainWindow : UIWindow
 {
-    public MainWindow(MauiContext context, CGRect frame)
+    public MainWindow(IServiceProvider provider, CGRect frame)
         : base(frame)
     {
-        this.RootViewController = new MainUIViewController(context.Services, context);
+        this.RootViewController = new MainUIViewController(provider);
         var windowScene = this.WindowScene;
 
         if (windowScene is not null)
@@ -20,7 +20,7 @@ public sealed class MainWindow : UIWindow
 
             var toolbar = new NSToolbar();
             var controller = (MainUIViewController)this.RootViewController;
-            toolbar.Delegate = new MainToolbarDelegate(this.RootViewController, controller.Context.Services);
+            toolbar.Delegate = new MainToolbarDelegate(this.RootViewController, provider);
             toolbar.DisplayMode = NSToolbarDisplayMode.Icon;
 
             windowScene.Title = MauiFeed.Translations.Common.AppTitle;

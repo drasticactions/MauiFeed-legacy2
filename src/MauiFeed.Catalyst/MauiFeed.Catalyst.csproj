@@ -16,7 +16,6 @@
     </PropertyGroup>
     <ItemGroup>
         <ProjectReference Include="..\MauiFeed.Core\MauiFeed.Core.csproj"/>
-        <ProjectReference Include="..\MauiFeed.MauiUI\MauiFeed.MauiUI.csproj" />
         <ProjectReference Include="..\MauiFeed.UI\MauiFeed.UI.csproj" />
     </ItemGroup>
     <ItemGroup>
