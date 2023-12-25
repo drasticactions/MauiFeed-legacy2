@@ -15,13 +15,24 @@ namespace MauiFeed.Services
     public class HandlebarsTemplateService : ITemplateService
     {
         private HandlebarsTemplate<object, object> feedItemTemplate;
+        private HandlebarsTemplate<object, object> blankTemplate;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="HandlebarsTemplateService"/> class.
         /// </summary>
         public HandlebarsTemplateService()
         {
-            this.feedItemTemplate = Handlebars.Compile(HandlebarsTemplateService.GetResourceFileContentAsString("Templates.feeditem.html.hbs"));
+            this.feedItemTemplate =
+                Handlebars.Compile(
+                    HandlebarsTemplateService.GetResourceFileContentAsString("Templates.feeditem.html.hbs"));
+            this.blankTemplate =
+                Handlebars.Compile(
+                    HandlebarsTemplateService.GetResourceFileContentAsString("Templates.blank.html.hbs"));
+        }
+
+        public async Task<string> RenderBlankAsync(bool darkMode)
+        {
+            return this.blankTemplate.Invoke(new { IsDarkMode = darkMode });
         }
 
         /// <inheritdoc/>
@@ -48,7 +59,11 @@ namespace MauiFeed.Services
             // Replace all links with blank targets, to force them to open in new tabs.
             item.Html = Regex.Replace(item.Html ?? string.Empty, "<(a)([^>]+)>", @"<$1 target=""_blank""$2>");
 
-            return this.feedItemTemplate.Invoke(new { IsDarkMode = darkMode, FeedListItem = item.Feed, FeedItem = item, Image = Convert.ToBase64String(item.Feed?.ImageCache ?? new byte[0]) });
+            return this.feedItemTemplate.Invoke(new
+            {
+                IsDarkMode = darkMode, FeedListItem = item.Feed, FeedItem = item,
+                Image = Convert.ToBase64String(item.Feed?.ImageCache ?? new byte[0])
+            });
         }
 
         private static string GetResourceFileContentAsString(string fileName)

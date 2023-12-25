@@ -134,4 +134,10 @@ public class MainToolbarDelegate : AppKit.NSToolbarDelegate
         toolbarItem.Target = this;
         return toolbarItem;
     }
+
+    [Export("refreshClickAction:")]
+    public void RefreshClickAction(NSObject sender)
+    {
+        this.optionsMenu.RefreshFeedsAsync().FireAndForgetSafeAsync(this.optionsMenu.ErrorHandler);
+    }
 }

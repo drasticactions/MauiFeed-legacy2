@@ -17,14 +17,14 @@ public class OptionsMenu
 
     private UIAlertController enterFeedUrlAlert;
     private UIAlertController enterFolderNameAlert;
-    
+
     private IErrorHandlerService errorHandler;
     private OpmlFeedListItemFactory opmlFeedListItemFactory;
-    
-    #if IOS || MACCATALYST
+
+#if IOS || MACCATALYST
     private UIDocumentPickerViewController documentPicker;
-    #endif
-    
+#endif
+
     public OptionsMenu(UIViewController rootViewController, IServiceProvider services)
     {
         this.rootViewController = rootViewController;
@@ -70,8 +70,8 @@ public class OptionsMenu
         this.enterFolderNameAlert.AddAction(okAction2);
 
         var allowedUTIs = new string[] { UTType.XML };
-        
-        #if IOS || MACCATALYST
+
+#if IOS || MACCATALYST
         this.documentPicker = new UIDocumentPickerViewController(allowedUTIs, UIDocumentPickerMode.Import);
         this.documentPicker.ModalPresentationStyle = UIModalPresentationStyle.FullScreen;
         this.documentPicker.DidPickDocumentAtUrls += (sender, e) => {
@@ -87,20 +87,18 @@ public class OptionsMenu
                 }
             }).FireAndForgetSafeAsync(this.errorHandler);
         };
-        #endif
-        
-        this.AddMenu = UIMenu.Create(Common.AddLabel, UIImage.GetSystemImage("plus.circle"), UIMenuIdentifier.Font, UIMenuOptions.DisplayInline, new UIMenuElement[]
-        {
-            UIAction.Create(Common.FeedLabel, UIImage.GetSystemImage("newspaper"), null,
-                action =>
-                {
-                    this.rootViewController.PresentViewController(this.enterFeedUrlAlert, true, null);
-                }),
-            UIAction.Create(Common.FolderLabel, UIImage.GetSystemImage("folder.badge.plus"), null,
-                action =>
-                {
-                    this.rootViewController.PresentViewController(this.enterFolderNameAlert, true, null);
-                }),
+#endif
+
+        this.AddMenu = UIMenu.Create(Common.AddLabel, UIImage.GetSystemImage("plus.circle"), UIMenuIdentifier.Font,
+            UIMenuOptions.DisplayInline, new UIMenuElement[]
+            {
+                UIAction.Create(Common.FeedLabel, UIImage.GetSystemImage("newspaper"), null,
+                    action => { this.rootViewController.PresentViewController(this.enterFeedUrlAlert, true, null); }),
+                UIAction.Create(Common.FolderLabel, UIImage.GetSystemImage("folder.badge.plus"), null,
+                    action =>
+                    {
+                        this.rootViewController.PresentViewController(this.enterFolderNameAlert, true, null);
+                    }),
 #if IOS || MACCATALYST
             UIAction.Create(Common.OPMLFeedLabel, UIImage.GetSystemImage("list.bullet.rectangle"), null,
                 action =>
@@ -109,8 +107,15 @@ public class OptionsMenu
                     this.rootViewController.PresentViewController(this.documentPicker, true, null);
                 }),
 #endif
-        });
+            });
     }
-    
+
     public UIMenu AddMenu { get; }
+    
+    public IErrorHandlerService ErrorHandler => this.errorHandler;
+
+    public async Task RefreshFeedsAsync()
+    {
+        await this.cache.RefreshFeedsAsync();
+    }
 }

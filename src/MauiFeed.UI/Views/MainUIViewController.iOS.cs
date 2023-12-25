@@ -1,3 +1,4 @@
+using MauiFeed.Models;
 using MauiFeed.Translations;
 using MauiFeed.UI.Models;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,7 +13,7 @@ public sealed class MainUIViewController : UISplitViewController
     private readonly IServiceProvider provider;
     private readonly SidebarViewController sidebarViewController;
     private readonly TimelineTableViewController timelineTableViewController;
-    private readonly UIViewController debug2ViewController;
+    private readonly FeedWebViewController feedWebViewController;
     private List<SidebarItem> menuButtons;
 
     /// <summary>
@@ -25,11 +26,11 @@ public sealed class MainUIViewController : UISplitViewController
         this.provider = provider;
 
         this.menuButtons = this.GenerateMenuButtons();
-        this.timelineTableViewController = new TimelineTableViewController(this, provider);
+        this.timelineTableViewController = new TimelineTableViewController(this, provider, this.OnFeedItemSelected);
         this.sidebarViewController = new SidebarViewController(provider, this.OnSidebarItemSelected);
-        this.debug2ViewController = new BasicViewController();
+        this.feedWebViewController = new FeedWebViewController(this, provider);
         this.SetViewController(this.sidebarViewController, UISplitViewControllerColumn.Primary);
-        this.SetViewController(this.debug2ViewController, UISplitViewControllerColumn.Secondary);
+        this.SetViewController(this.feedWebViewController, UISplitViewControllerColumn.Secondary);
         this.SetViewController(this.timelineTableViewController, UISplitViewControllerColumn.Supplementary);
         this.PreferredDisplayMode = UISplitViewControllerDisplayMode.TwoBesideSecondary;
         this.PreferredPrimaryColumnWidth = 245f;
@@ -62,6 +63,12 @@ public sealed class MainUIViewController : UISplitViewController
     {
         this.timelineTableViewController.SidebarItem = item;
         this.ShowColumn(UISplitViewControllerColumn.Supplementary);
+    }
+
+    private void OnFeedItemSelected(FeedItem? item)
+    {
+        this.feedWebViewController.SetFeedItem(item);
+        this.ShowColumn(UISplitViewControllerColumn.Secondary);
     }
 
     private async void OnRefreshSelected()

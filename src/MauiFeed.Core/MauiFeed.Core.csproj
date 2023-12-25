@@ -23,6 +23,7 @@
     <EmbeddedResource Include="Icon\favicon.ico" />
     <EmbeddedResource Include="Icon\logo.png" />
     <EmbeddedResource Include="Templates\feeditem.html.hbs" />
+    <EmbeddedResource Include="Templates\blank.html.hbs" />
   </ItemGroup>
 
   <ItemGroup>

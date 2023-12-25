@@ -145,7 +145,7 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
                 (from feedItem in item.Items ?? new List<FeedListItem>()
                     select new SidebarItem(
                         feedItem,
-                        this.context.FeedItems!.Include(n => n.Feed).Where(n => n.FeedListItemId == item.Id),
+                        this.context.FeedItems!.Include(n => n.Feed).Where(n => n.FeedListItemId == feedItem.Id),
                         this.OnFeedSelected)).ToArray(),
                 sidebarItem);
         }
@@ -356,22 +356,23 @@ public sealed partial class SidebarViewController : UIViewController, IUICollect
 
             if (item.SidebarItemType == SidebarItemType.FeedListItem)
             {
+                var removeFeed = UIAction.Create(
+                    Common.RemoveFeedLabel,
+                    UIImage.GetSystemImage("delete.left"),
+                    null,
+                    action => { onRemoved.Invoke(item); });
+                var removeFromFolder = UIAction.Create(
+                    Common.RemoveFromFolderLabel,
+                    UIImage.GetSystemImage("delete.left"),
+                    null,
+                    action => { onRemovedFromFolder.Invoke(item); });
+                var menu = item.FeedListItem?.FolderId > 0
+                    ? new UIMenuElement[] { removeFeed, removeFromFolder }
+                    : new UIMenuElement[] { removeFeed };
                 return UIContextMenuConfiguration.Create(
                     identifier: null,
                     previewProvider: null,
-                    actionProvider: _ => UIMenu.Create(new UIMenuElement[]
-                    {
-                        UIAction.Create(
-                            Common.RemoveFeedLabel,
-                            UIImage.GetSystemImage("delete.left"),
-                            null,
-                            action => { onRemoved.Invoke(item); }),
-                        UIAction.Create(
-                            Common.RemoveFromFolderLabel,
-                            UIImage.GetSystemImage("delete.left"),
-                            null,
-                            action => { onRemovedFromFolder.Invoke(item); }),
-                    }));
+                    actionProvider: _ => UIMenu.Create(menu));
             }
 
             return null;
