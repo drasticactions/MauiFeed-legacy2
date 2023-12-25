@@ -18,6 +18,8 @@ public class FeedWebViewController : UIViewController
 
     private MainUIViewController rootSplitViewController;
 
+    private FeedItem? item;
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="FeedWebViewController"/> class.
     /// </summary>
@@ -43,19 +45,35 @@ public class FeedWebViewController : UIViewController
     /// <param name="item">Item.</param>
     public void SetFeedItem(FeedItem? item)
     {
-        Task.Run(async () =>
+        this.InvokeOnMainThread(() =>
         {
-            var resultString = string.Empty;
-            if (item is null)
+            this.item = item;
+            var isDarkMode = this.TraitCollection.UserInterfaceStyle == UIUserInterfaceStyle.Dark;
+            Task.Run(async () =>
             {
-                resultString = await this.templateService.RenderBlankAsync(true);
-            }
-            else
-            {
-                resultString = await this.templateService.RenderFeedItemAsync(item, true);
-            }
+                var resultString = string.Empty;
+                if (item is null)
+                {
+                    resultString = await this.templateService.RenderBlankAsync(isDarkMode);
+                }
+                else
+                {
+                    resultString = await this.templateService.RenderFeedItemAsync(item, isDarkMode);
+                }
 
-            this.webview.SetSource(resultString);
-        }).FireAndForgetSafeAsync(this.errorHandler);
+                this.webview.SetSource(resultString);
+            }).FireAndForgetSafeAsync(this.errorHandler);
+            
+        });
+    }
+
+    public override void TraitCollectionDidChange(UITraitCollection? previousTraitCollection)
+    {
+        base.TraitCollectionDidChange(previousTraitCollection);
+
+        if (this.TraitCollection.UserInterfaceStyle != previousTraitCollection?.UserInterfaceStyle)
+        {
+            this.SetFeedItem(this.item);
+        }
     }
 }
