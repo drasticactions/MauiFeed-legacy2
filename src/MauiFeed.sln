@@ -11,6 +11,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.UI", "MauiFeed.UI\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.iOS", "MauiFeed.iOS\MauiFeed.iOS.csproj", "{D37717E4-623D-4E47-A9CD-20F813EF0520}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartReader", "..\external\SmartReader\src\SmartReader\SmartReader.csproj", "{3F5152C4-A8DA-43D8-93A4-9867F40A55D3}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,5 +38,9 @@ Global
 		{D37717E4-623D-4E47-A9CD-20F813EF0520}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D37717E4-623D-4E47-A9CD-20F813EF0520}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D37717E4-623D-4E47-A9CD-20F813EF0520}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3F5152C4-A8DA-43D8-93A4-9867F40A55D3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3F5152C4-A8DA-43D8-93A4-9867F40A55D3}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3F5152C4-A8DA-43D8-93A4-9867F40A55D3}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3F5152C4-A8DA-43D8-93A4-9867F40A55D3}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

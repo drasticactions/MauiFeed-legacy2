@@ -15,7 +15,6 @@
     <PackageReference Include="JsonFeed.NET" Version="1.1.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite.Core" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
-    <PackageReference Include="SmartReader" Version="0.9.4" />
   </ItemGroup>
   
   <ItemGroup>
@@ -39,5 +38,9 @@
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Common.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\external\SmartReader\src\SmartReader\SmartReader.csproj" />
   </ItemGroup>
 </Project>
