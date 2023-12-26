@@ -12,7 +12,7 @@ public sealed class MainUIViewController : UISplitViewController
 {
     private readonly IServiceProvider provider;
     private readonly SidebarViewController sidebarViewController;
-    private readonly TimelineTableViewController timelineTableViewController;
+    private readonly TimelineCollectionViewController timelineTableViewController;
     private readonly FeedWebViewController feedWebViewController;
     private List<SidebarItem> menuButtons;
 
@@ -26,7 +26,7 @@ public sealed class MainUIViewController : UISplitViewController
         this.provider = provider;
 
         this.menuButtons = this.GenerateMenuButtons();
-        this.timelineTableViewController = new TimelineTableViewController(this, provider, this.OnFeedItemSelected);
+        this.timelineTableViewController = new TimelineCollectionViewController(this, provider, this.OnFeedItemSelected);
         this.sidebarViewController = new SidebarViewController(provider, this.OnSidebarItemSelected);
         this.feedWebViewController = new FeedWebViewController(this, provider);
         this.SetViewController(this.sidebarViewController, UISplitViewControllerColumn.Primary);

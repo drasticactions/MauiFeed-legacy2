@@ -1,27 +1,44 @@
-
 using System.Text.RegularExpressions;
 using Drastic.PureLayout;
+using Drastic.Services;
+using Drastic.Tools;
 using MauiFeed.Models;
+using MauiFeed.Services;
 using MauiFeed.UI.Models;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MauiFeed.UI.Views;
 
 public class TimelineCollectionViewController : UIViewController, IUICollectionViewDelegate
 {
+    private DatabaseContext database;
+
     private SidebarItem? sidebarItem;
+    private FeedItem? selectedItem;
     private UICollectionView collectionView;
     private UICollectionViewDiffableDataSource<NSString, FeedItemWrapper>? dataSource;
     private NSString feedSelector = new NSString("Feed");
-    
+    private Action<FeedItem> onFeedItemSelected;
+    private IErrorHandlerService errorHandler;
+
     public TimelineCollectionViewController(MainUIViewController controller,
         IServiceProvider provider,
         Action<FeedItem> onFeedItemSelected)
         : base()
     {
-        var layout = new UICollectionViewFlowLayout {
-            ScrollDirection = UICollectionViewScrollDirection.Vertical,
-            EstimatedItemSize = UICollectionViewFlowLayout.AutomaticSize
-        };
+        this.onFeedItemSelected = onFeedItemSelected;
+        this.database = provider.GetRequiredService<DatabaseContext>();
+        this.errorHandler = provider.GetRequiredService<IErrorHandlerService>();
+        var layout = new UICollectionViewCompositionalLayout((sectionIndex, layoutEnvironment) =>
+        {
+            var configuration = new UICollectionLayoutListConfiguration(UICollectionLayoutListAppearance.Plain);
+            configuration.HeaderMode = UICollectionLayoutListHeaderMode.None;
+#if !TVOS
+            configuration.ShowsSeparators = true;
+#endif
+            return NSCollectionLayoutSection.GetSection(configuration, layoutEnvironment);
+        });
+
         this.collectionView = new UICollectionView(this.View!.Bounds, layout);
         this.collectionView.Delegate = this;
 
@@ -32,6 +49,57 @@ public class TimelineCollectionViewController : UIViewController, IUICollectionV
 
         this.ConfigureDataSource();
         this.UpdateFeed();
+    }
+
+    /// <summary>
+    /// Fired when Item is Selected.
+    /// </summary>
+    /// <param name="collectionView">CollectionView.</param>
+    /// <param name="indexPath">Index Path.</param>
+    [Export("collectionView:didSelectItemAtIndexPath:")]
+    protected void ItemSelected(UICollectionView collectionView, NSIndexPath indexPath)
+    {
+        var cell = (TimelineCollectionCell)this.collectionView.CellForItem(indexPath);
+        if (cell is null)
+        {
+            return;
+        }
+
+        var item = cell.Item;
+        item.IsRead = true;
+        this.SelectedItem = cell.Item;
+        cell.UpdateIsRead();
+    }
+
+    /// <summary>
+    /// Gets or sets the selected item.
+    /// </summary>
+    public FeedItem? SelectedItem
+    {
+        get { return this.selectedItem; }
+
+        set
+        {
+            this.selectedItem = value;
+            this.UpdateSelectedFeedItemAsync().FireAndForgetSafeAsync(this.errorHandler);
+        }
+    }
+
+    /// <summary>
+    /// Update the selected feed item, if it exists.
+    /// </summary>
+    /// <returns>Task.</returns>
+    public async Task UpdateSelectedFeedItemAsync()
+    {
+        if (this.SelectedItem is null)
+        {
+            return;
+        }
+
+        await this.database.AddOrUpdateFeedItemAsync(this.SelectedItem);
+        this.onFeedItemSelected(this.SelectedItem);
+
+        // this.controller.Sidebar.UpdateSidebar();
     }
 
     /// <summary>
@@ -74,16 +142,16 @@ public class TimelineCollectionViewController : UIViewController, IUICollectionV
                     {
                         throw new Exception();
                     }
-                    
+
                     if (cell is not TimelineCollectionCell timelineCell)
                     {
                         throw new Exception();
                     }
-                    
+
                     timelineCell.SetupCell(sidebarItem.Item, true);
                 }
             ));
-        
+
         this.dataSource = new UICollectionViewDiffableDataSource<NSString, FeedItemWrapper>(
             this.collectionView,
             new UICollectionViewDiffableDataSourceCellProvider((collectionView, indexPath, item) =>
@@ -98,7 +166,12 @@ public class TimelineCollectionViewController : UIViewController, IUICollectionV
     {
         return new UICollectionViewCompositionalLayout((sectionIndex, layoutEnvironment) =>
         {
-            var configuration = new UICollectionLayoutListConfiguration(UICollectionLayoutListAppearance.Plain);
+#if TVOS
+            var app = UICollectionLayoutListAppearance.Plain;
+#else
+            var app = UICollectionLayoutListAppearance.Sidebar;
+#endif
+            var configuration = new UICollectionLayoutListConfiguration(app);
 #if !TVOS
             configuration.ShowsSeparators = true;
 #endif
@@ -128,33 +201,47 @@ public class TimelineCollectionCell : UICollectionViewCell
 
     private UIImageView hasSeenIcon = new UIImageView() { TranslatesAutoresizingMaskIntoConstraints = false };
     private UIImageView icon = new UIImageView() { TranslatesAutoresizingMaskIntoConstraints = false };
+    private UIView content = new UIView() { TranslatesAutoresizingMaskIntoConstraints = false };
 
     private UILabel title = new UILabel()
-        { Lines = 3, Font = UIFont.PreferredHeadline, TextAlignment = UITextAlignment.Left, TranslatesAutoresizingMaskIntoConstraints = false };
+    {
+        Lines = 5, LineBreakMode = UILineBreakMode.WordWrap, Font = UIFont.PreferredHeadline,
+        TextAlignment = UITextAlignment.Left, TranslatesAutoresizingMaskIntoConstraints = false
+    };
 
     private UILabel description = new UILabel()
-        { Lines = 2, Font = UIFont.PreferredSubheadline, TextAlignment = UITextAlignment.Left, TranslatesAutoresizingMaskIntoConstraints = false };
+    {
+        Lines = 3, LineBreakMode = UILineBreakMode.WordWrap, Font = UIFont.PreferredSubheadline,
+        TextAlignment = UITextAlignment.Left, TranslatesAutoresizingMaskIntoConstraints = false
+    };
 
     private UILabel releaseDate = new UILabel()
-        { Lines = 1, Font = UIFont.PreferredCaption1, TextAlignment = UITextAlignment.Right, TranslatesAutoresizingMaskIntoConstraints = false };
+    {
+        Lines = 1, Font = UIFont.PreferredCaption1, TextAlignment = UITextAlignment.Right,
+        TranslatesAutoresizingMaskIntoConstraints = false
+    };
 
     private UILabel author = new UILabel()
-        { Lines = 1, Font = UIFont.PreferredCaption1, TextAlignment = UITextAlignment.Left, TranslatesAutoresizingMaskIntoConstraints = false };
+    {
+        Lines = 1, Font = UIFont.PreferredCaption1, TextAlignment = UITextAlignment.Left,
+        TranslatesAutoresizingMaskIntoConstraints = false
+    };
 
     public TimelineCollectionCell(IntPtr handle)
         : base(handle)
     {
+#if !TVOS
+        this.icon.Layer.BackgroundColor = UIColor.White.CGColor;
+#endif
         this.icon.Layer.CornerRadius = 5;
         this.icon.Layer.MasksToBounds = true;
-#if IOS
-                this.title.Lines = 2;
-                this.description.Lines = 1;
-#endif
 
         this.SetupUI();
         this.SetupLayout();
         // this.SetupCell(info, showIcon);
     }
+
+    public FeedItem Item => this.item;
 
     public override UICollectionViewLayoutAttributes PreferredLayoutAttributesFittingAttributes(
         UICollectionViewLayoutAttributes layoutAttributes)
@@ -164,9 +251,11 @@ public class TimelineCollectionCell : UICollectionViewCell
 
     public void SetupUI()
     {
-        this.ContentView.AddSubview(this.hasSeenHolder);
-        this.ContentView.AddSubview(this.iconHolder);
-        this.ContentView.AddSubview(this.feedHolder);
+        this.ContentView.AddSubview(this.content);
+
+        this.content.AddSubview(this.hasSeenHolder);
+        this.content.AddSubview(this.iconHolder);
+        this.content.AddSubview(this.feedHolder);
 
         this.hasSeenHolder.AddSubview(this.hasSeenIcon);
 
@@ -182,22 +271,23 @@ public class TimelineCollectionCell : UICollectionViewCell
 
     public void SetupLayout()
     {
-        this.ContentView.AutoSetContentHuggingPriorityForAxis(ALAxis.Horizontal);
+        this.content.AutoPinEdgesToSuperviewEdges();
         this.hasSeenHolder.AutoPinEdgesToSuperviewEdgesExcludingEdge(UIEdgeInsets.Zero, ALEdge.Right);
         this.hasSeenHolder.AutoPinEdge(ALEdge.Right, ALEdge.Left, this.iconHolder);
         this.hasSeenHolder.AutoSetDimension(ALDimension.Width, 25f);
 
         this.iconHolder.AutoPinEdge(ALEdge.Left, ALEdge.Right, this.hasSeenHolder);
         this.iconHolder.AutoPinEdge(ALEdge.Right, ALEdge.Left, this.feedHolder);
-        this.iconHolder.AutoPinEdge(ALEdge.Top, ALEdge.Top, this.ContentView);
-        this.iconHolder.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, this.ContentView);
-        this.iconHolder.AutoSetDimension(ALDimension.Width, 60f);
+        // this.iconHolder.AutoPinEdge(ALEdge.Top, ALEdge.Top, this.content);
+        // this.iconHolder.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, this.content);
+        this.iconHolder.AutoAlignAxis(ALAxis.Horizontal, this.feedHolder);
+        this.iconHolder.AutoSetDimension(ALDimension.Width, 25f);
 
         this.hasSeenIcon.AutoCenterInSuperview();
         this.hasSeenIcon.AutoSetDimensionsToSize(new CGSize(12, 12));
 
         this.icon.AutoCenterInSuperview();
-        this.icon.AutoSetDimensionsToSize(new CGSize(50f, 50f));
+        this.icon.AutoSetDimensionsToSize(new CGSize(25f, 25f));
 
         this.feedHolder.AutoPinEdgesToSuperviewEdgesExcludingEdge(
             new UIEdgeInsets(top: 0f, left: 0f, bottom: 0f, right: 0f), ALEdge.Left);
@@ -210,12 +300,13 @@ public class TimelineCollectionCell : UICollectionViewCell
         this.description.AutoPinEdge(ALEdge.Top, ALEdge.Bottom, this.title, 0);
         this.description.AutoPinEdge(ALEdge.Right, ALEdge.Right, this.title);
         this.description.AutoPinEdge(ALEdge.Left, ALEdge.Left, this.title);
+        this.description.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, this.releaseDate, -15f);
 
-        this.author.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, this.ContentView, -5);
+        this.author.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, this.content, -5);
         this.author.AutoPinEdge(ALEdge.Left, ALEdge.Left, this.title);
         this.author.AutoPinEdge(ALEdge.Right, ALEdge.Left, this.releaseDate);
 
-        this.releaseDate.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, this.ContentView,　-5f);
+        this.releaseDate.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, this.content,　-5f);
         this.releaseDate.AutoPinEdge(ALEdge.Right, ALEdge.Right, this.title);
         this.releaseDate.AutoPinEdge(ALEdge.Left, ALEdge.Right, this.author);
     }

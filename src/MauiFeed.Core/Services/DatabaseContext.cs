@@ -64,6 +64,22 @@ namespace MauiFeed.Services
         /// </summary>
         public DbSet<AppSettings>? AppSettings { get; set; }
 
+        public async Task<int> AddOrUpdateFeedItemAsync(FeedItem item)
+        {
+            if (item.Id == 0)
+            {
+                await this.FeedItems!.AddAsync(item);
+            }
+            else
+            {
+                this.FeedItems!.Update(item);
+            }
+
+            var result = await this.SaveChangesAsync();
+            this.OnFeedListItemUpdate?.Invoke(this, new FeedListItemContentEventArgs(item.Feed));
+            return result;
+        }
+
         public async Task<int> AddOrUpdateFeedFolderAsync(FeedFolder folder)
         {
             if (folder.Id == 0)
@@ -200,12 +216,12 @@ namespace MauiFeed.Services
 
 public class FeedListItemContentEventArgs : EventArgs
 {
-    public FeedListItemContentEventArgs(FeedListItem feed)
+    public FeedListItemContentEventArgs(FeedListItem? feed)
     {
         this.Feed = feed;
     }
 
-    public FeedListItem Feed { get; }
+    public FeedListItem? Feed { get; }
 }
 
 public class FeedFolderContentEventArgs : EventArgs
