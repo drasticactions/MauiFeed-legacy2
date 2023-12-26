@@ -6,6 +6,7 @@ using MauiFeed.Models;
 using MauiFeed.Services;
 using MauiFeed.UI.Models;
 using Microsoft.Extensions.DependencyInjection;
+using ObjCRuntime;
 
 namespace MauiFeed.UI.Views;
 
@@ -21,7 +22,8 @@ public class TimelineTableViewController : UIViewController
     private IErrorHandlerService errorHandler;
     private RssTableView tableView;
     private Action<FeedItem> onFeedItemSelected;
-
+    private TableSource tableSource;
+    
     /// <summary>
     /// Initializes a new instance of the <see cref="TimelineTableViewController"/> class.
     /// </summary>
@@ -36,6 +38,11 @@ public class TimelineTableViewController : UIViewController
         this.database = (DatabaseContext)provider.GetRequiredService<DatabaseContext>()!;
         this.errorHandler = (IErrorHandlerService)provider.GetRequiredService<IErrorHandlerService>()!;
         this.tableView = new RssTableView(this.View!.Frame, UITableViewStyle.Plain);
+        this.tableView.Source = this.tableSource = new TableSource(this, new FeedItem[] { });
+        this.tableView.PrefetchingEnabled = true;
+        this.tableView.RowHeight = 100f;
+        this.tableView.EstimatedRowHeight = 100f;
+        this.tableView.RegisterClassForCellReuse(typeof(RssItemViewCell), RssItemViewCell.PublicReuseIdentifier);
         this.View!.AddSubview(this.tableView);
         this.tableView.TranslatesAutoresizingMaskIntoConstraints = false;
         this.tableView.AutoPinEdgesToSuperviewEdges();
@@ -112,9 +119,10 @@ public class TimelineTableViewController : UIViewController
     public void UpdateFeed()
     {
         var items = this.Items ?? new List<FeedItem>();
-        this.tableView.Source = new TableSource(this, items.ToArray());
+        this.tableSource.UpdateItems(items.ToArray(), this.ShowIcon);
         this.tableView.ReloadData();
-        this.tableView.SetContentOffset(CGPoint.Empty, true);
+        this.tableView.LayoutIfNeeded();
+        this.tableView.ContentOffset = new CGPoint(0, 0 - this.tableView.ContentInset.Top);
     }
 
     /// <summary>
@@ -140,7 +148,6 @@ public class TimelineTableViewController : UIViewController
         public RssTableView(CGRect rect, UITableViewStyle style)
             : base(rect, style)
         {
-            this.RowHeight = UITableView.AutomaticDimension;
             this.Delegate = this;
         }
     }
@@ -155,33 +162,26 @@ public class TimelineTableViewController : UIViewController
         {
             this.controller = controller;
             this.tableItems = items;
-            this.showIcon = this.controller.ShowIcon;
+        }
+
+        public void UpdateItems(FeedItem[] items, bool showIcon = false)
+        {
+            this.tableItems = items;
+            this.showIcon = showIcon;
         }
 
         public override nint RowsInSection(UITableView tableview, nint section)
         {
             return this.tableItems.Length;
         }
-
-        public override nfloat GetHeightForRow(UITableView tableView, NSIndexPath indexPath)
-        {
-            return 100f;
-        }
-
+        
         public override UITableViewCell GetCell(UITableView tableView, NSIndexPath indexPath)
         {
             RssItemViewCell? cell =
                 tableView.DequeueReusableCell(RssItemViewCell.PublicReuseIdentifier) as RssItemViewCell;
             FeedItem item = this.tableItems[indexPath.Row];
 
-            if (cell == null)
-            {
-                cell = new RssItemViewCell(item, this.showIcon);
-            }
-            else
-            {
-                cell.SetupCell(item, this.showIcon);
-            }
+            cell.SetupCell(item, this.showIcon);
 
             return cell;
         }
@@ -207,7 +207,7 @@ public class TimelineTableViewController : UIViewController
         private UIImageView icon = new UIImageView();
 
         private UILabel title = new UILabel()
-            { Lines = 3, Font = UIFont.PreferredHeadline, TextAlignment = UITextAlignment.Left };
+            { Lines = 0, Font = UIFont.PreferredHeadline, TextAlignment = UITextAlignment.Left };
 
         private UILabel description = new UILabel()
             { Lines = 2, Font = UIFont.PreferredSubheadline, TextAlignment = UITextAlignment.Left };
@@ -218,20 +218,17 @@ public class TimelineTableViewController : UIViewController
         private UILabel author = new UILabel()
             { Lines = 1, Font = UIFont.PreferredCaption1, TextAlignment = UITextAlignment.Left };
 
-        public RssItemViewCell(FeedItem info, bool showIcon = false,
-            UITableViewCellStyle style = UITableViewCellStyle.Default)
-            : base(style, PublicReuseIdentifier)
+        public RssItemViewCell(NativeHandle handle)
+            : base(handle)
         {
-            this.item = info;
             this.icon.Layer.CornerRadius = 5;
             this.icon.Layer.MasksToBounds = true;
 #if IOS
-                this.title.Lines = 2;
+                this.title.Lines = 0;
                 this.description.Lines = 1;
 #endif
             this.SetupUI();
             this.SetupLayout();
-            this.SetupCell(info, showIcon);
         }
 
         /// <summary>
@@ -303,8 +300,8 @@ public class TimelineTableViewController : UIViewController
         public void SetupCell(FeedItem item, bool showIcon)
         {
             this.item = item;
-
             this.icon.Image = UIImage.LoadFromData(NSData.FromArray(item.Feed!.ImageCache!))!.WithRoundedCorners(5f);
+
             this.title.Text = item.Title;
             this.author.Text = item.Author;
 
