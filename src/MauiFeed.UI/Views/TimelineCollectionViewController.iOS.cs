@@ -118,6 +118,8 @@ public class TimelineCollectionViewController : UIViewController, IUICollectionV
 
     public IList<FeedItem> Items => this.sidebarItem?.Query?.ToList() ?? new List<FeedItem>();
 
+    public bool ShowIcon => this.sidebarItem is not null && (this.sidebarItem.SidebarItemType == SidebarItemType.Folder || this.sidebarItem.SidebarItemType == SidebarItemType.SmartFilter);
+
     private void UpdateFeed(bool animated = true)
     {
         var items = new List<FeedItemWrapper>();
@@ -148,7 +150,7 @@ public class TimelineCollectionViewController : UIViewController, IUICollectionV
                         throw new Exception();
                     }
 
-                    timelineCell.SetupCell(sidebarItem.Item, true);
+                    timelineCell.SetupCell(sidebarItem.Item, this.ShowIcon);
                 }
             ));
 
@@ -203,6 +205,9 @@ public class TimelineCollectionCell : UICollectionViewCell
     private UIImageView icon = new UIImageView() { TranslatesAutoresizingMaskIntoConstraints = false };
     private UIView content = new UIView() { TranslatesAutoresizingMaskIntoConstraints = false };
 
+    private NSLayoutConstraint withIcon;
+    private NSLayoutConstraint withoutIcon;
+    
     private UILabel title = new UILabel()
     {
         Lines = 5, LineBreakMode = UILineBreakMode.WordWrap, Font = UIFont.PreferredHeadline,
@@ -235,9 +240,11 @@ public class TimelineCollectionCell : UICollectionViewCell
 #endif
         this.icon.Layer.CornerRadius = 5;
         this.icon.Layer.MasksToBounds = true;
-
+        this.withIcon = this.iconHolder.WidthAnchor.ConstraintEqualTo(25f);
+        this.withoutIcon = this.iconHolder.WidthAnchor.ConstraintEqualTo(0f);
         this.SetupUI();
         this.SetupLayout();
+        this.SelectedBackgroundView = new UIView(this.Frame) { BackgroundColor = UIColor.Blue };
         // this.SetupCell(info, showIcon);
     }
 
@@ -309,6 +316,7 @@ public class TimelineCollectionCell : UICollectionViewCell
         this.releaseDate.AutoPinEdge(ALEdge.Bottom, ALEdge.Bottom, this.content,　-5f);
         this.releaseDate.AutoPinEdge(ALEdge.Right, ALEdge.Right, this.title);
         this.releaseDate.AutoPinEdge(ALEdge.Left, ALEdge.Right, this.author);
+        
     }
 
     public void UpdateConstraints()
@@ -331,6 +339,11 @@ public class TimelineCollectionCell : UICollectionViewCell
 
         this.releaseDate.Text = item.PublishingDate?.ToShortDateString();
 
+        this.withIcon.Active = showIcon;
+        this.withoutIcon.Active = !showIcon;
+
+        this.icon.Hidden = !showIcon;
+        
         this.UpdateIsRead();
 
         this.LayoutIfNeeded();
@@ -349,5 +362,22 @@ public class TimelineCollectionCell : UICollectionViewCell
                 ? UIImage.GetSystemImage("circle")
                 : UIImage.GetSystemImage("circle.fill"));
         }
+    }
+}
+
+public static class UIColorExtensions
+{
+    /// <summary>
+    /// Gets the System Tint.
+    /// </summary>
+    /// <returns><see cref="UIColor"/>.</returns>
+    public static UIColor GetSystemTint()
+    {
+#if TVOS
+            return UIColor.Clear;
+#else
+        var color = UIConfigurationColorTransformer.PreferredTint;
+        return color(UIColor.Clear);
+#endif
     }
 }
