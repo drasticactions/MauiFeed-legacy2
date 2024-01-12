@@ -1,0 +1,52 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeedApp", "MauiFeedApp\MauiFeedApp.csproj", "{DDBB5B17-EAD9-4AAE-8D50-9030628AD946}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeedApp.Droid", "MauiFeedApp.Droid\MauiFeedApp.Droid.csproj", "{B6CB6FDA-EAA2-4854-8C71-E96B35C82943}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.Core", "..\MauiFeed.Core\MauiFeed.Core.csproj", "{58B1958C-13CE-4E54-A2AD-C239DCD18E3F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartReader", "..\..\external\SmartReader\src\SmartReader\SmartReader.csproj", "{C3CEFDFF-68B7-4F67-B454-DC435D7F827D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.MauiUI", "..\MauiFeed.MauiUI\MauiFeed.MauiUI.csproj", "{60632734-BC83-40DF-BF4B-6FB94CC86240}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.UI", "..\MauiFeed.UI\MauiFeed.UI.csproj", "{95DC3C66-1950-4FAB-B2FD-FB3C41DBBD83}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{DDBB5B17-EAD9-4AAE-8D50-9030628AD946}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DDBB5B17-EAD9-4AAE-8D50-9030628AD946}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DDBB5B17-EAD9-4AAE-8D50-9030628AD946}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DDBB5B17-EAD9-4AAE-8D50-9030628AD946}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B6CB6FDA-EAA2-4854-8C71-E96B35C82943}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6CB6FDA-EAA2-4854-8C71-E96B35C82943}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6CB6FDA-EAA2-4854-8C71-E96B35C82943}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6CB6FDA-EAA2-4854-8C71-E96B35C82943}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58B1958C-13CE-4E54-A2AD-C239DCD18E3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58B1958C-13CE-4E54-A2AD-C239DCD18E3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58B1958C-13CE-4E54-A2AD-C239DCD18E3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58B1958C-13CE-4E54-A2AD-C239DCD18E3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C3CEFDFF-68B7-4F67-B454-DC435D7F827D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C3CEFDFF-68B7-4F67-B454-DC435D7F827D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C3CEFDFF-68B7-4F67-B454-DC435D7F827D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C3CEFDFF-68B7-4F67-B454-DC435D7F827D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{60632734-BC83-40DF-BF4B-6FB94CC86240}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{60632734-BC83-40DF-BF4B-6FB94CC86240}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{60632734-BC83-40DF-BF4B-6FB94CC86240}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{60632734-BC83-40DF-BF4B-6FB94CC86240}.Release|Any CPU.Build.0 = Release|Any CPU
+		{95DC3C66-1950-4FAB-B2FD-FB3C41DBBD83}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{95DC3C66-1950-4FAB-B2FD-FB3C41DBBD83}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{95DC3C66-1950-4FAB-B2FD-FB3C41DBBD83}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{95DC3C66-1950-4FAB-B2FD-FB3C41DBBD83}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

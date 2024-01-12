@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.Catalyst", "MauiFeed.Catalyst\MauiFeed.Catalyst.csproj", "{586897B4-F1CB-45F1-9A3B-F81C8D1575AD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.Core", "..\MauiFeed.Core\MauiFeed.Core.csproj", "{56BBDAA3-99E1-4F7C-85A0-78945756266A}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartReader", "..\..\external\SmartReader\src\SmartReader\SmartReader.csproj", "{62BFD4D0-BBA1-42EE-8928-10FC5F84CA12}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.UI", "..\MauiFeed.UI\MauiFeed.UI.csproj", "{2E51BF35-F381-4690-BFE4-09E7C4C19660}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{586897B4-F1CB-45F1-9A3B-F81C8D1575AD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{586897B4-F1CB-45F1-9A3B-F81C8D1575AD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{586897B4-F1CB-45F1-9A3B-F81C8D1575AD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{586897B4-F1CB-45F1-9A3B-F81C8D1575AD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{56BBDAA3-99E1-4F7C-85A0-78945756266A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{56BBDAA3-99E1-4F7C-85A0-78945756266A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{56BBDAA3-99E1-4F7C-85A0-78945756266A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{56BBDAA3-99E1-4F7C-85A0-78945756266A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{62BFD4D0-BBA1-42EE-8928-10FC5F84CA12}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{62BFD4D0-BBA1-42EE-8928-10FC5F84CA12}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{62BFD4D0-BBA1-42EE-8928-10FC5F84CA12}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{62BFD4D0-BBA1-42EE-8928-10FC5F84CA12}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2E51BF35-F381-4690-BFE4-09E7C4C19660}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2E51BF35-F381-4690-BFE4-09E7C4C19660}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2E51BF35-F381-4690-BFE4-09E7C4C19660}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2E51BF35-F381-4690-BFE4-09E7C4C19660}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
