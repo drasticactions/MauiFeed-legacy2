@@ -1,3 +1,7 @@
+// <copyright file="TestErrorHandlerService.cs" company="Drastic Actions">
+// Copyright (c) Drastic Actions. All rights reserved.
+// </copyright>
+
 using System.Diagnostics;
 
 namespace MauiFeed.Core.Tests.Services;

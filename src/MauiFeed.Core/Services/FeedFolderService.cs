@@ -30,7 +30,7 @@ public class FeedFolderService
     {
         return this.databaseContext.WriteAsync(() =>
         {
-            folder!.Items.Clear();
+            folder!.Items?.Clear();
             this.databaseContext.Remove(folder);
         });
     }
@@ -46,7 +46,7 @@ public class FeedFolderService
         {
             if (feed.Folder is not null)
             {
-                feed.Folder.Items.Remove(feed);
+                feed.Folder.Items?.Remove(feed);
             }
 
             feed.Folder = null;
@@ -59,7 +59,7 @@ public class FeedFolderService
         {
             if (feed.Folder is not null)
             {
-                feed.Folder.Items.Remove(feed);
+                feed.Folder.Items?.Remove(feed);
             }
 
             this.databaseContext.Remove(feed);
@@ -72,12 +72,12 @@ public class FeedFolderService
         {
             if (feed.Folder is not null)
             {
-                feed.Folder.Items.Remove(feed);
+                feed.Folder.Items?.Remove(feed);
             }
 
-            if (!folder.Items.Contains(feed))
+            if (!folder.Items?.Contains(feed) ?? false)
             {
-                folder.Items.Add(feed);
+                folder.Items?.Add(feed);
             }
 
             feed.Folder = folder;

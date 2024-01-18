@@ -6,6 +6,7 @@
         <Nullable>enable</Nullable>
         <RootNamespace>MauiFeed</RootNamespace>
         <IsAotCompatible>true</IsAotCompatible>
+        <WarningsAsErrors>nullable</WarningsAsErrors>
     </PropertyGroup>
     
     <ItemGroup>

@@ -16,13 +16,15 @@ namespace MauiFeed.Models
         public ObjectId Id { get; set; } = ObjectId.GenerateNewId();
 
         /// <summary>
+        /// Gets the list of Feed List Items.
+        /// </summary>
+#nullable disable
+        public IList<FeedListItem> Items { get; }
+#nullable enable
+
+        /// <summary>
         /// Gets or sets the name of the folder.
         /// </summary>
         public string? Name { get; set; }
-
-        /// <summary>
-        /// Gets the list of Feed List Items.
-        /// </summary>
-        public IList<FeedListItem> Items { get; }
     }
 }

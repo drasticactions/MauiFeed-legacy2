@@ -39,14 +39,15 @@ public class OpmlFeedListItemFactory
     /// <returns>Opml.</returns>
     public Opml GenerateOpmlFeed()
     {
-        var opml = new Opml();
-        opml.Head = new Head()
+        var opml = new Opml
         {
-            Title = "MauiFeed",
-            DateCreated = DateTime.UtcNow,
+            Head = new Head()
+            {
+                Title = "MauiFeed",
+                DateCreated = DateTime.UtcNow,
+            },
+            Body = new Body(),
         };
-
-        opml.Body = new Body();
 
         foreach (var folder in this.context.All<FeedFolder>())
         {
@@ -94,67 +95,55 @@ public class OpmlFeedListItemFactory
     /// <returns>Task.</returns>
     public Task GenerateFeedListItemsFromOpmlAsync(Opml opml)
     {
-        return this.context.WriteAsync(() => {
-            var opmlGroup = opml.Body.Outlines.SelectMany(n => this.Flatten(n)).Where(n => n.IsFeed)
-            .Select(n => n.ToFeedListItem()).ToList();
-        var cachedFolders = new List<FeedFolder>();
-
-        foreach (var item in opmlGroup)
+        return this.context.WriteAsync(() =>
         {
-            // If the item is already in the database, skip it.
-            if (this.context.All<FeedListItem>()!.Any(n => n.Uri == item.Uri))
-            {
-                continue;
-            }
+            var opmlGroup = opml.Body.Outlines.SelectMany(n => this.Flatten(n)).Where(n => n.IsFeed).Select(n => n.ToFeedListItem()).ToList();
+            var cachedFolders = new List<FeedFolder>();
 
-            if (item.Folder is not null)
+            foreach (var item in opmlGroup.Where(item => !this.context.All<FeedListItem>()!.Any(n => n.Uri == item.Uri)))
             {
-                var cachedFolder = cachedFolders.FirstOrDefault(n => n.Name == item.Folder.Name);
-                if (cachedFolder is not null)
+                if (item.Folder is not null)
                 {
-                    item.Folder = cachedFolder;
-                }
-                else
-                {
-                    var existingFolder =
-                        this.context.All<FeedFolder>()!.FirstOrDefault(n => n.Name == item.Folder.Name);
-                    if (existingFolder is not null)
+                    var cachedFolder = cachedFolders.FirstOrDefault(n => n.Name == item.Folder.Name);
+                    if (cachedFolder is not null)
                     {
-                        item.Folder = existingFolder;
+                        item.Folder = cachedFolder;
                     }
                     else
                     {
-                        this.context.Add(item.Folder, true);
-                        cachedFolders.Add(item.Folder);
+                        var existingFolder =
+                            this.context.All<FeedFolder>()!.FirstOrDefault(n => n.Name == item.Folder.Name);
+                        if (existingFolder is not null)
+                        {
+                            item.Folder = existingFolder;
+                        }
+                        else
+                        {
+                            this.context.Add(item.Folder, true);
+                            cachedFolders.Add(item.Folder);
+                        }
                     }
                 }
-            }
 
-            if (item.Folder!.Items.Contains(item))
-            {
-                // How did we get here?
+                if (item.Folder!.Items?.Contains(item) ?? false)
+                {
+                    // How did we get here?
+                }
+                else
+                {
+                    item.Folder!.Items?.Add(item);
+                }
             }
-            else
-            {
-                item.Folder!.Items.Add(item);
-            }
-        }
         });
     }
 
     private IEnumerable<Outline> Flatten(Outline forum)
     {
         yield return forum;
-        if (forum.Outlines != null)
+        var forums = forum.Outlines;
+        foreach (var descendant in forum.Outlines.SelectMany(this.Flatten))
         {
-            var forums = forum.Outlines;
-            foreach (var child in forum.Outlines)
-            {
-                foreach (var descendant in this.Flatten(child))
-                {
-                    yield return descendant;
-                }
-            }
+            yield return descendant;
         }
     }
 }

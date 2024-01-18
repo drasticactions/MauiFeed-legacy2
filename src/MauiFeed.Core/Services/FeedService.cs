@@ -35,8 +35,11 @@ namespace MauiFeed.Services
         /// Initializes a new instance of the <see cref="FeedService"/> class.
         /// </summary>
         /// <param name="errorHandler">Error handler.</param>
+        /// <param name="config">Realm Config.</param>
         /// <param name="client">Optional HttpClient.</param>
-        public FeedService(IErrorHandlerService errorHandler, RealmConfigurationBase config,
+        public FeedService(
+            IErrorHandlerService errorHandler,
+            RealmConfigurationBase config,
             HttpClient? client = default)
         {
             this.errorHandler = errorHandler;
@@ -254,7 +257,7 @@ namespace MauiFeed.Services
                 }
             }
 
-            if (!image.IsValidImage() && item.Items.Any() && item.Items.First().Link is { } link)
+            if (!image.IsValidImage() && (item.Items?.Any() ?? false) && item.Items?.First().Link is { } link)
             {
                 try
                 {
@@ -311,7 +314,7 @@ namespace MauiFeed.Services
             return await response.Content.ReadAsByteArrayAsync();
         }
 
-        private async void OnFeedListItemUpdate(IRealmCollection<FeedListItem> sender, ChangeSet? changes)
+        private void OnFeedListItemUpdate(IRealmCollection<FeedListItem> sender, ChangeSet? changes)
         {
             if (changes is null)
             {

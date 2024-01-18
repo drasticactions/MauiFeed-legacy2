@@ -1,3 +1,7 @@
+// <copyright file="TestDispatcherService.cs" company="Drastic Actions">
+// Copyright (c) Drastic Actions. All rights reserved.
+// </copyright>
+
 namespace MauiFeed.Core.Tests.Services;
 
 public class TestDispatcherService : IAppDispatcher

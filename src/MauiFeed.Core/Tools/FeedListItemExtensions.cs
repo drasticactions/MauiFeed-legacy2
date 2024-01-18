@@ -56,9 +56,9 @@ namespace MauiFeed
             oldItem.ImageCache ??= imageCache;
             foreach (var item in feed.Items)
             {
-                if (oldItem.Items.FirstOrDefault(n => n.RssId == item.Id) is null)
+                if (oldItem.Items?.FirstOrDefault(n => n.RssId == item.Id) is null)
                 {
-                    oldItem.Items.Add(item.ToFeedItem(oldItem));
+                    oldItem.Items?.Add(item.ToFeedItem(oldItem));
                 }
             }
         }
@@ -99,9 +99,9 @@ namespace MauiFeed
             oldItem.FeedType = Models.FeedType.Json;
             oldItem.ImageCache ??= imageCache;
             foreach (var item in feed.Items.Where(item =>
-                         oldItem.Items.FirstOrDefault(n => n.RssId == item.Id) is null))
+                         oldItem.Items?.FirstOrDefault(n => n.RssId == item.Id) is null))
             {
-                oldItem.Items.Add(item.ToFeedItem(oldItem));
+                oldItem.Items?.Add(item.ToFeedItem(oldItem));
             }
         }
 

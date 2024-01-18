@@ -97,10 +97,14 @@ namespace MauiFeed.Models
             set => this.FeedTypeInt = (int)value;
         }
 
+#nullable disable
+
         /// <summary>
         /// Gets the list of feed items.
         /// </summary>
         public IList<FeedItem> Items { get; }
+
+#nullable enable
 
         /// <summary>
         /// Gets or sets a value indicating whether the feed is favorited.
