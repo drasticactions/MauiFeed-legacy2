@@ -112,10 +112,15 @@ namespace MauiFeed.Services
             {
                 using var response = await this.client.GetAsync(feedItem.Uri, cancelationToken);
                 stringResponse = (await response.Content.ReadAsStringAsync()).Trim();
+                if (!response.IsSuccessStatusCode)
+                {
+                    throw new ArgumentException($"Could not get feed, {response.StatusCode}");
+                }
             }
             catch (Exception ex)
             {
                 this.errorHandler.HandleError(ex);
+                return;
             }
 
             // We have a response, time to figure out what to do with it.

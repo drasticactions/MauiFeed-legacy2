@@ -5,6 +5,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using MauiFeed.Events;
 using MauiFeed.Tools;
 using MauiFeed.WinUI.Tools;
@@ -14,14 +15,16 @@ using WinUICommunity;
 
 namespace MauiFeed.Models;
 
-public class FeedSidebarItem : ISidebarItem
+public class FeedSidebarItem : ISidebarItem, INotifyPropertyChanged
 {
+    private bool hideUnreadItems;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="FeedSidebarItem"/> class.
     /// </summary>
     /// <param name="feedListItem">Feed List Item.</param>
     /// <param name="query">Optional query parameter.</param>
-    public FeedSidebarItem(FeedListItem feedListItem, IQueryable<Models.FeedItem>? query = default)
+    public FeedSidebarItem(FeedListItem feedListItem, IEnumerable<Models.FeedItem>? query = default)
     {
         this.Id = Guid.NewGuid();
         this.FeedListItem = feedListItem;
@@ -53,7 +56,7 @@ public class FeedSidebarItem : ISidebarItem
     /// </summary>
     /// <param name="folder">Feed Folder.</param>
     /// <param name="query">Optional query parameter.</param>
-    public FeedSidebarItem(FeedFolder folder, IQueryable<FeedItem>? query = default)
+    public FeedSidebarItem(FeedFolder folder, IEnumerable<FeedItem>? query = default)
     {
         this.Id = Guid.NewGuid();
         this.Query = query;
@@ -71,7 +74,7 @@ public class FeedSidebarItem : ISidebarItem
     /// <param name="title">The Title.</param>
     /// <param name="icon">The Icon.</param>
     /// <param name="query">Optional query parameter.</param>
-    public FeedSidebarItem(string title, IconElement icon, IQueryable<FeedItem>? query = default)
+    public FeedSidebarItem(string title, IconElement icon, IEnumerable<FeedItem>? query = default)
     {
         this.Id = Guid.NewGuid();
         this.Query = query;
@@ -79,6 +82,9 @@ public class FeedSidebarItem : ISidebarItem
         this.SidebarItemType = SidebarItemType.SmartFilter;
         this.Update();
     }
+
+    /// <inheritdoc/>
+    public event PropertyChangedEventHandler? PropertyChanged;
 
     /// <summary>
     /// Event fired when folder gets item dropped.
@@ -99,6 +105,11 @@ public class FeedSidebarItem : ISidebarItem
     /// Gets the navigation view item.
     /// </summary>
     public NavigationViewItem NavItem { get; }
+
+    /// <summary>
+    /// Gets or sets a value indicating whether to hide unread items.
+    /// </summary>
+    public bool AlwaysHideUnread { get; set; }
 
     /// <summary>
     /// Gets the title.
@@ -167,6 +178,15 @@ public class FeedSidebarItem : ISidebarItem
     /// </summary>
     public int UnreadCount => this.Query?.Where(n => !n.IsRead).Count() ?? 0;
 
+    /// <summary>
+    /// Gets or sets a value indicating whether to hide items.
+    /// </summary>
+    public bool HideUnreadItems
+    {
+        get { return this.hideUnreadItems; }
+        set { this.SetProperty(ref this.hideUnreadItems, value); }
+    }
+
     /// <inheritdoc/>
     public void Update()
     {
@@ -229,5 +249,35 @@ public class FeedSidebarItem : ISidebarItem
     {
         args.Data.RequestedOperation = Windows.ApplicationModel.DataTransfer.DataPackageOperation.Move;
         args.Data.SetData(nameof(this.Id), this?.Id);
+    }
+
+    /// <summary>
+    /// On Property Changed.
+    /// </summary>
+    /// <param name="propertyName">Name of the property.</param>
+    private void OnPropertyChanged([CallerMemberName] string propertyName = "")
+    {
+        var changed = this.PropertyChanged;
+        if (changed == null)
+        {
+            return;
+        }
+
+        changed.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+#pragma warning disable SA1600 // Elements should be documented
+    private bool SetProperty<T>(ref T backingStore, T value, [CallerMemberName] string propertyName = "", Action? onChanged = null)
+#pragma warning restore SA1600 // Elements should be documented
+    {
+        if (EqualityComparer<T>.Default.Equals(backingStore, value))
+        {
+            return false;
+        }
+
+        backingStore = value;
+        onChanged?.Invoke();
+        this.OnPropertyChanged(propertyName);
+        return true;
     }
 }
