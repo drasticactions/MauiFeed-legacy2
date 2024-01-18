@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "MauiFeed (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "MauiFeed (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}

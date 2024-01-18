@@ -49,5 +49,8 @@
             <LastGenOutput>Common.Designer.cs</LastGenOutput>
         </EmbeddedResource>
     </ItemGroup>
-
+	
+	<ItemGroup>
+		<EmbeddedResource Include="Icon\logo_header.png" />
+	</ItemGroup>
 </Project>
