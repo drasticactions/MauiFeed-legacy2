@@ -3,12 +3,16 @@
     <PropertyGroup>
         <TargetFramework>net8.0</TargetFramework>
         <ImplicitUsings>enable</ImplicitUsings>
-        <Nullable>enable</Nullable>
-        <RootNamespace>MauiFeed</RootNamespace>
+		<RootNamespace>MauiFeed</RootNamespace>
+		<Nullable>enable</Nullable>
         <IsAotCompatible>true</IsAotCompatible>
         <WarningsAsErrors>nullable</WarningsAsErrors>
     </PropertyGroup>
-    
+
+	<ItemGroup>
+		<InternalsVisibleTo Include="MauiFeed.AppleUI" />
+	</ItemGroup>
+	
     <ItemGroup>
         <PackageReference Include="AngleSharp" Version="1.0.7" />
         <PackageReference Include="CodeHollow.FeedReader" Version="1.2.6" />
@@ -45,4 +49,5 @@
             <LastGenOutput>Common.Designer.cs</LastGenOutput>
         </EmbeddedResource>
     </ItemGroup>
+
 </Project>

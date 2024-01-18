@@ -10,11 +10,6 @@ namespace MauiFeed.Models;
 public interface ISidebarItem
 {
     /// <summary>
-    /// Gets the image.
-    /// </summary>
-    public ISidebarImage? Image { get; }
-
-    /// <summary>
     /// Gets the id.
     /// </summary>
     public Guid Id { get; }
@@ -63,4 +58,9 @@ public interface ISidebarItem
     /// Gets the unread count.
     /// </summary>
     public int UnreadCount { get; }
+
+    /// <summary>
+    /// Update the item.
+    /// </summary>
+    public void Update();
 }

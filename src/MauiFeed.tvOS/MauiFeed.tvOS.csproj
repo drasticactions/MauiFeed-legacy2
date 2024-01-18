@@ -1,0 +1,16 @@
+<Project Sdk="Microsoft.NET.Sdk">
+	<PropertyGroup>
+		<TargetFramework>net8.0-tvos</TargetFramework>
+		<OutputType>Exe</OutputType>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>true</ImplicitUsings>
+		<SupportedOSPlatformVersion>11.2</SupportedOSPlatformVersion>
+		<RootNamespace>MauiFeed</RootNamespace>
+		<AssemblyName>MauiFeed</AssemblyName>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\MauiFeed.AppleUI\MauiFeed.AppleUI.csproj" />
+		<ProjectReference Include="..\MauiFeed.Core\MauiFeed.Core.csproj" />
+	</ItemGroup>
+</Project>
