@@ -9,6 +9,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MauiFeed.Core.Tests", "Maui
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SmartReader", "..\external\SmartReader\src\SmartReader\SmartReader.csproj", "{3EEB1E12-5AA3-4EEA-9A2A-B2A0C5DEDE06}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Externals", "Externals", "{2AF90FC3-9460-4258-A086-18D3331B4270}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{86404F72-5BBD-4456-9486-614DDA66F737}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -30,5 +34,9 @@ Global
 		{3EEB1E12-5AA3-4EEA-9A2A-B2A0C5DEDE06}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3EEB1E12-5AA3-4EEA-9A2A-B2A0C5DEDE06}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3EEB1E12-5AA3-4EEA-9A2A-B2A0C5DEDE06}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{3EEB1E12-5AA3-4EEA-9A2A-B2A0C5DEDE06} = {2AF90FC3-9460-4258-A086-18D3331B4270}
+		{885545B1-FA63-48E9-B7D9-AB293AD78FE0} = {86404F72-5BBD-4456-9486-614DDA66F737}
 	EndGlobalSection
 EndGlobal

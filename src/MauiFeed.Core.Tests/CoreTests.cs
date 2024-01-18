@@ -36,6 +36,9 @@ public class CoreTests
     [Fact]
     public async void AddAndRemoveFeedFolderTest()
     {
+        // These point to the same realm.
+        // So when calling the base realm instance, it should be able to get the other items from the other services
+        // Even though their instance is "different"
         Realm? realm = Realm.GetInstance(new InMemoryConfiguration("AddAndRemoveFolderTest"));
         var feedFolderService = new FeedFolderService(new InMemoryConfiguration("AddAndRemoveFolderTest"));
         var rssService = new FeedService(new TestErrorHandlerService(), new InMemoryConfiguration("AddAndRemoveFolderTest"));
